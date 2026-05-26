@@ -1,6 +1,6 @@
 [package]
 name = "httpmark"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "Fast HTTP benchmark tool — wrk/ab replacement with latency percentiles, QPS ramp, HTTP/2 and JSON output"
 license = "MIT"
