@@ -3,7 +3,7 @@
 Fast HTTP/HTTPS benchmark tool.  
 Latency percentiles. QPS rate control. Compare mode. HTTP/2. JSON output. Static binary.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/redlemonbe/httpmark)](https://github.com/redlemonbe/httpmark/releases/latest)
 
 > **Authorized testing only.**  
@@ -209,7 +209,7 @@ Security issues: redlemonbe@codix.be (private disclosure before opening a public
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
+AGPL-3.0-only — see [LICENSE](LICENSE)
 
 ---
 

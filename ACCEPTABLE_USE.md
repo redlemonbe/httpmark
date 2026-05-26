@@ -20,7 +20,9 @@ you do not own, it is a denial-of-service weapon.
 
 ## License and consequences
 
-httpmark is distributed under the **MIT License**.
+httpmark is distributed under the **GNU Affero General Public License v3 (AGPL-3.0-only)**.
+Any use of httpmark as part of a network service requires making the full source code
+available under the same license.
 
 Unauthorized use voids all liability protections and constitutes a criminal offense
 in most jurisdictions, including but not limited to violations of the Computer Fraud
