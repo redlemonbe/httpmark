@@ -1,7 +1,7 @@
 # httpmark
 
 Fast HTTP/HTTPS benchmark tool.  
-Latency percentiles. QPS rate control. HTTP/2. JSON output. Static binary.
+Latency percentiles. QPS rate control. Compare mode. HTTP/2. JSON output. Static binary.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/redlemonbe/httpmark)](https://github.com/redlemonbe/httpmark/releases/latest)
@@ -44,6 +44,46 @@ httpmark https://api.example.com/items -m POST -b '{"name":"test"}' -H "X-API-Ke
 
 # JSON output (CI/CD, dashboards)
 httpmark https://api.example.com/health -c 50 -d 30 --json
+
+# Compare two endpoints side by side
+httpmark https://api.example.com/v1/health --compare https://api.example.com/v2/health -c 20 -d 30
+```
+
+---
+
+## Compare mode
+
+```bash
+httpmark https://api.example.com/v1/items --compare https://api.example.com/v2/items -c 20 -d 30
+```
+
+Both targets run in parallel with the same connection count and duration. Results are shown side by side with deltas.
+
+```
+  httpmark v0.1.0  —  COMPARE MODE
+  A : https://api.example.com/v1/items
+  B : https://api.example.com/v2/items
+  Connections per target : 20
+  Duration               : 30s
+
+  Running both benchmarks in parallel...
+
+  Metric                           A               B  Delta B vs A
+  ──────────────────────────────────────────────────────────────
+  Requests                    87 432          92 100        +5.4%
+  Throughput                2 914/s         3 070/s        +5.4%
+  Bandwidth               1.27MB/s        1.34MB/s        +5.5%
+  2xx                         87 432          92 100        +5.4%
+
+  Latency                          A               B  Delta B vs A
+  ──────────────────────────────────────────────────────────────
+  p50                        16.23ms         14.81ms        -8.7%
+  p90                        24.11ms         22.33ms        -7.4%
+  p95                        29.44ms         27.12ms        -7.9%
+  p99                        48.72ms         44.55ms        -8.6%
+  p99.9                      89.15ms         81.22ms        -8.9%
+  max                       143.22ms        131.44ms        -8.2%
+  mean                       17.14ms         15.68ms        -8.5%
 ```
 
 ---
@@ -132,6 +172,7 @@ All latency values are in **microseconds** (`_us` suffix).
 | `-2, --http2` | — | Force HTTP/2 (ALPN) |
 | `--json` | — | JSON output |
 | `--csv-interval <secs>` | `0` | Per-interval CSV (0 = off) |
+| `--compare <URL>` | — | Compare mode: second URL to benchmark in parallel |
 
 ---
 
