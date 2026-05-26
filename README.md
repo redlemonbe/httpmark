@@ -1,14 +1,30 @@
 # httpmark
 
-Fast HTTP/HTTPS benchmark tool.  
-Latency percentiles. QPS rate control. Compare mode. HTTP/2. JSON output. Static binary.
+**Fast HTTP/HTTPS benchmark tool. QPS control, HTTP/2, compare mode, JSON output. Static binary.**
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/redlemonbe/httpmark)](https://github.com/redlemonbe/httpmark/releases/latest)
+[![Release](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](https://github.com/redlemonbe/httpmark/releases/latest)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/redlemonbe?style=flat&logo=github&label=Sponsor)](https://github.com/sponsors/redlemonbe)
 
 > **Authorized testing only.**  
 > Only use httpmark against servers you own or have explicit written authorization to test.  
 > Read [ACCEPTABLE_USE.md](ACCEPTABLE_USE.md) before use.
+
+---
+
+## What you get
+
+| | wrk | ab | hey | k6 | httpmark |
+|---|:---:|:---:|:---:|:---:|:---:|
+| HTTP/2 | ❌ | ❌ | ✅ | ✅ | ✅ `--http2` |
+| QPS rate cap | ❌ | ❌ | ✅ | ✅ | ✅ `--qps` |
+| Linear ramp-up | ❌ | ❌ | ❌ | ✅ | ✅ `--ramp` |
+| Compare two URLs | ❌ | ❌ | ❌ | ❌ | ✅ `--compare` |
+| POST body / custom headers | ✅ | ✅ | ✅ | ✅ | ✅ |
+| p999 latency | ❌ | ❌ | ❌ | ✅ | ✅ |
+| JSON output | ❌ | ❌ | ✅ | ✅ | ✅ `--json` |
+| Per-interval CSV | ❌ | ❌ | ❌ | ✅ | ✅ `--csv-interval` |
+| Static binary, no deps | ❌ | ❌ | ✅ | ❌ | ✅ musl |
 
 ---
 
@@ -17,6 +33,14 @@ Latency percentiles. QPS rate control. Compare mode. HTTP/2. JSON output. Static
 ```bash
 # x86_64
 curl -Lo httpmark https://github.com/redlemonbe/httpmark/releases/latest/download/httpmark-x86_64-linux-gnu
+chmod +x httpmark && sudo mv httpmark /usr/local/bin/
+
+# x86_64 static (musl)
+curl -Lo httpmark https://github.com/redlemonbe/httpmark/releases/latest/download/httpmark-x86_64-linux-musl
+chmod +x httpmark && sudo mv httpmark /usr/local/bin/
+
+# aarch64 (Graviton, Raspberry Pi 4/5)
+curl -Lo httpmark https://github.com/redlemonbe/httpmark/releases/latest/download/httpmark-aarch64-linux-gnu
 chmod +x httpmark && sudo mv httpmark /usr/local/bin/
 ```
 
@@ -42,48 +66,11 @@ httpmark https://api.example.com/ -c 20 -d 10 --http2
 # POST request with JSON body
 httpmark https://api.example.com/items -m POST -b '{"name":"test"}' -H "X-API-Key: secret"
 
+# Compare two servers side by side
+httpmark https://v1.api.example.com/health --compare https://v2.api.example.com/health -c 20 -d 30
+
 # JSON output (CI/CD, dashboards)
 httpmark https://api.example.com/health -c 50 -d 30 --json
-
-# Compare two endpoints side by side
-httpmark https://api.example.com/v1/health --compare https://api.example.com/v2/health -c 20 -d 30
-```
-
----
-
-## Compare mode
-
-```bash
-httpmark https://api.example.com/v1/items --compare https://api.example.com/v2/items -c 20 -d 30
-```
-
-Both targets run in parallel with the same connection count and duration. Results are shown side by side with deltas.
-
-```
-  httpmark v0.1.0  —  COMPARE MODE
-  A : https://api.example.com/v1/items
-  B : https://api.example.com/v2/items
-  Connections per target : 20
-  Duration               : 30s
-
-  Running both benchmarks in parallel...
-
-  Metric                           A               B  Delta B vs A
-  ──────────────────────────────────────────────────────────────
-  Requests                    87 432          92 100        +5.4%
-  Throughput                2 914/s         3 070/s        +5.4%
-  Bandwidth               1.27MB/s        1.34MB/s        +5.5%
-  2xx                         87 432          92 100        +5.4%
-
-  Latency                          A               B  Delta B vs A
-  ──────────────────────────────────────────────────────────────
-  p50                        16.23ms         14.81ms        -8.7%
-  p90                        24.11ms         22.33ms        -7.4%
-  p95                        29.44ms         27.12ms        -7.9%
-  p99                        48.72ms         44.55ms        -8.6%
-  p99.9                      89.15ms         81.22ms        -8.9%
-  max                       143.22ms        131.44ms        -8.2%
-  mean                       17.14ms         15.68ms        -8.5%
 ```
 
 ---
@@ -91,7 +78,7 @@ Both targets run in parallel with the same connection count and duration. Result
 ## Output
 
 ```
-  httpmark v0.1.0
+  httpmark v0.1.1
   URL          : https://api.example.com/health
   Connections  : 50
   Duration     : 30s
@@ -121,6 +108,27 @@ Both targets run in parallel with the same connection count and duration. Result
     p99.9 : 89.15ms
     max   : 143.22ms
     mean  : 17.14ms
+```
+
+---
+
+## Compare mode
+
+```bash
+httpmark https://old.api.com/health --compare https://new.api.com/health -c 20 -d 30
+```
+
+Runs both benchmarks in parallel, then prints a delta table:
+
+```
+  Compare: A vs B
+  ───────────────────────────────────────────────────────
+  Metric        │         A         │         B  │  Delta
+  ──────────────┼───────────────────┼────────────┼───────
+  Throughput    │    2 914 req/s    │  3 201 req/s│  +9.9%
+  p50           │      16.23ms     │    14.88ms  │  -8.3%
+  p99           │      48.72ms     │    41.15ms  │ -15.5%
+  Errors        │             0    │          0  │   ≈0%
 ```
 
 ---
@@ -159,10 +167,11 @@ All latency values are in **microseconds** (`_us` suffix).
 | Flag | Default | Description |
 |------|---------|-------------|
 | `<URL>` | — | Target URL (required) |
+| `--compare <URL>` | — | Second URL for side-by-side comparison |
 | `-c, --connections <N>` | `10` | Concurrent connections |
 | `-d, --duration <secs>` | `10` | Test duration |
 | `-q, --qps <N>` | `0` (unlimited) | Target QPS cap |
-| `--ramp <secs>` | `0` | Linear ramp-up from 0 to --qps |
+| `--ramp <secs>` | `0` | Linear ramp-up from 0 to `--qps` |
 | `-t, --threads <N>` | CPUs | Tokio worker threads |
 | `-H, --header <N: V>` | — | Extra header (repeatable) |
 | `-m, --method <M>` | `GET` | HTTP method |
@@ -172,7 +181,6 @@ All latency values are in **microseconds** (`_us` suffix).
 | `-2, --http2` | — | Force HTTP/2 (ALPN) |
 | `--json` | — | JSON output |
 | `--csv-interval <secs>` | `0` | Per-interval CSV (0 = off) |
-| `--compare <URL>` | — | Compare mode: second URL to benchmark in parallel |
 
 ---
 
@@ -191,12 +199,16 @@ Requires Rust 1.75+.
 
 ## Contributing
 
-`cargo clippy --all-targets` — zero warnings  
-`cargo test` — all tests must pass
+```bash
+cargo clippy --all-targets   # zero warnings
+cargo test                   # all tests must pass
+```
+
+Pull requests welcome.
 
 ---
 
-## Support
+## Support the project
 
 [![Sponsor](https://img.shields.io/github/sponsors/redlemonbe?style=flat&logo=github&label=Sponsor)](https://github.com/sponsors/redlemonbe)
 
@@ -209,9 +221,11 @@ Security issues: redlemonbe@codix.be (private disclosure before opening a public
 
 ## License
 
-AGPL-3.0-only — see [LICENSE](LICENSE)
+AGPL-3.0-only — see [LICENSE](LICENSE).
+
+Any use of httpmark as part of a network service requires making the full source code available to users of that service, under the same license.
 
 ---
 
-*httpmark is a companion tool for [RunNginx](https://github.com/redlemonbe/RunNginx).*  
+*Part of the [RunSoftware](https://github.com/redlemonbe) stack — [RunNginx](https://github.com/redlemonbe/RunNginx) · [Runbound](https://github.com/redlemonbe/Runbound) · [RunAlexDB](https://github.com/redlemonbe/RunAlexDB)*  
 Copyright (C) 2026 RedLemonBe
