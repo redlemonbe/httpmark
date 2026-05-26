@@ -2,5 +2,33 @@
 name = "httpmark"
 version = "0.1.0"
 edition = "2024"
+description = "Fast HTTP benchmark tool — wrk/ab replacement with latency percentiles, QPS ramp, HTTP/2 and JSON output"
+license = "MIT"
+repository = "https://github.com/redlemonbe/httpmark"
+readme = "README.md"
+
+[[bin]]
+name = "httpmark"
+path = "src/main.rs"
 
 [dependencies]
+tokio = { version = "1", features = ["full"] }
+hyper = { version = "1", features = ["client", "http1", "http2"] }
+hyper-util = { version = "0.1", features = ["client", "client-legacy", "http1", "http2", "tokio"] }
+http-body-util = "0.1"
+rustls = { version = "0.23", features = ["ring"] }
+rustls-native-certs = "0.8"
+hyper-rustls = { version = "0.27", features = ["native-tokio", "http1", "http2"] }
+tokio-rustls = "0.26"
+clap = { version = "4", features = ["derive"] }
+hdrhistogram = "7"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+bytes = "1"
+http = "1"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
