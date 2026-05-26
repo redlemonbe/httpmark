@@ -3,7 +3,7 @@
 **Fast HTTP/HTTPS benchmark tool. QPS control, HTTP/2, compare mode, JSON output. Static binary.**
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](https://github.com/redlemonbe/httpmark/releases/latest)
+[![Release](https://img.shields.io/github/v/release/redlemonbe/httpmark)](https://github.com/redlemonbe/httpmark/releases/latest)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/redlemonbe?style=flat&logo=github&label=Sponsor)](https://github.com/sponsors/redlemonbe)
 
 > **Authorized testing only.**  
